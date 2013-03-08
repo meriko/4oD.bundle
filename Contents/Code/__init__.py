@@ -1,7 +1,4 @@
 TITLE = '4oD'
-ART = 'art-default.jpg'
-ICON = 'icon-default.png'
-
 RE_EPISODE_SUMMARY = Regex('<[^<]+?>')
 RE_EPISODE_DETAILS = Regex('Series (?P<series>[0-9]+) Episode (?P<episode>[0-9]+)')
 
@@ -16,35 +13,46 @@ PROGRAMMES_SEARCH = '%s/programmes/long-form-search/?q=%%s' % BASE_URL
 ###################################################################################################
 def Start():
 
-	Plugin.AddViewGroup('List', viewMode='List', mediaType='items')
-	Plugin.AddViewGroup('InfoList', viewMode='InfoList', mediaType='items')
-
 	ObjectContainer.title1 = TITLE
-	ObjectContainer.view_group = 'List'
-	ObjectContainer.art = R(ART)
-
-	DirectoryObject.thumb = R(ICON)
-	DirectoryObject.art = R(ART)
-	EpisodeObject.thumb = R(ICON)
-	EpisodeObject.art = R(ART)
-
 	HTTP.CacheTime = CACHE_1HOUR
 	HTTP.Headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:17.0) Gecko/20100101 Firefox/17.0'
 
 ###################################################################################################
-@handler('/video/4od', TITLE, art=ART, thumb=ICON)
+@handler('/video/4od', TITLE)
 def MainMenu():
 
 	oc = ObjectContainer()
+
+	if not Platform.HasWebKit:
+		oc.header = 'Not supported'
+		oc.message = 'Server platform not supported'
+		if Client.Product == 'Web Client':
+			oc.add(Error('Server platform not supported'))
+		return oc
+	elif not Platform.HasFlash:
+		oc.header = 'Missing Flash plugin'
+		oc.message = 'Flash browser plugin is missing'
+		if Client.Product == 'Web Client':
+			oc.add(Error('Flash browser plugin is missing'))
+		return oc
 
 	oc.add(DirectoryObject(key=Callback(BrowseDate, title='Browse by Date'), title='Browse by Date'))
 	oc.add(DirectoryObject(key=Callback(BrowseCategory, title='Browse by Category'), title='Browse by Category'))
 	oc.add(DirectoryObject(key=Callback(BrowseAlphabetically, title='Browse Alphabetically'), title='Browse Alphabetically'))
 	oc.add(DirectoryObject(key=Callback(FeaturedCategory, title='Featured'), title='Featured'))
-	oc.add(InputDirectoryObject(key=Callback(Search), title='Search', prompt='Search for Programmes', thumb=R('search.png')))
-	oc.add(PrefsObject(title='Preferences', thumb=R('icon-prefs.png')))
+	oc.add(InputDirectoryObject(key=Callback(Search), title='Search', prompt='Search for Programmes'))
+	oc.add(PrefsObject(title='Preferences'))
 
 	return oc
+
+####################################################################################################
+@route('/video/4od/error')
+def Error(title):
+
+	return DirectoryObject(
+		key = Callback(Error, title=title),
+		title = title
+	)
 
 ####################################################################################################
 @route('/video/4od/browsebydate')
@@ -86,10 +94,10 @@ def Schedule(title, date):
 		oc.add(EpisodeObject(
 			url = url,
 			title = title,
-			thumb = Resource.ContentsOfURLWithFallback(url=thumb, fallback=ICON)
+			thumb = Resource.ContentsOfURLWithFallback(url=thumb)
 		))
 
-	if len(oc) == 0:
+	if len(oc) < 1:
 		return ObjectContainer(header='Empty', message='This directory is empty')
 	else:
 		return oc
@@ -109,23 +117,12 @@ def BrowseCategory(title):
 			titles.append(title)
 			tag = c.get('href').split('/')[3]
 
-			thumb = 'icon-default.png'
-			if title == '4Music':
-				thumb = 'icon-4music.png'
-			elif title == 'Channel 4':
-				thumb = 'icon-channel4.png'
-			elif title == 'E4':
-				thumb = 'icon-e4.png'
-			elif title == 'More4':
-				thumb = 'icon-more4.png'
-
 			oc.add(DirectoryObject(
 				key = Callback(Programmes, title=title, tag=tag),
-				title = title,
-				thumb = R(thumb)
+				title = title
 			))
 
-	if len(oc) == 0:
+	if len(oc) < 1:
 		return ObjectContainer(header='Empty', message='This directory is empty')
 	else:
 		oc.objects.sort(key=lambda obj: obj.title)
@@ -174,10 +171,10 @@ def Programmes(title, tag=None, char=None):
 		oc.add(DirectoryObject(
 			key = Callback(Series, title=p['title'], url=p['url'], thumb=thumb),
 			title = p['title'],
-			thumb = Resource.ContentsOfURLWithFallback(url=thumb, fallback=ICON)
+			thumb = Resource.ContentsOfURLWithFallback(url=thumb)
 		))
 
-	if len(oc) == 0:
+	if len(oc) < 1:
 		return ObjectContainer(header='Empty', message='This directory is empty')
 	else:
 		return oc
@@ -236,10 +233,10 @@ def Series(title, url, thumb=None):
 		oc.add(DirectoryObject(
 			key = Callback(Episodes, title=title, url=url, id=id, series_thumb=thumb),
 			title = title,
-			thumb = Resource.ContentsOfURLWithFallback(url=thumb, fallback=ICON)
+			thumb = Resource.ContentsOfURLWithFallback(url=thumb)
 		))
 
-	if len(oc) == 0:
+	if len(oc) < 1:
 		return ObjectContainer(heaer='Empty', message='This directory is empty')
 	else:
 		return oc
@@ -290,10 +287,10 @@ def Episodes(title, url, id, series_thumb=None):
 			season = series,
 			index = episode,
 			originally_available_at = date,
-			thumb = Resource.ContentsOfURLWithFallback(url=thumb_urls, fallback=ICON)
+			thumb = Resource.ContentsOfURLWithFallback(url=thumb_urls)
 		))
 
-	if len(oc) == 0:
+	if len(oc) < 1:
 		return ObjectContainer(header='Empty', message='This directory is empty')
 	else:
 		return oc
@@ -320,7 +317,7 @@ def FeaturedCategory(title):
 			title = title
 		))
 
-	if len(oc) == 0:
+	if len(oc) < 1:
 		return ObjectContainer(header='Empty', message='This directory is empty')
 	else:
 		return oc
@@ -351,10 +348,10 @@ def Featured(title, i):
 			key = Callback(Series, title=title, url=details['url'], thumb=thumb),
 			title = title,
 			summary = summary,
-			thumb = Resource.ContentsOfURLWithFallback(url=thumb, fallback=ICON)
+			thumb = Resource.ContentsOfURLWithFallback(url=thumb)
 		))
 
-	if len(oc) == 0:
+	if len(oc) < 1:
 		return ObjectContainer(header='Empty', message='This directory is empty')
 	else:
 		return oc
@@ -377,7 +374,7 @@ def Search(query='grand designs'):
 				thumb = Callback(GetThumbCallback, series_page=url)
 			))
 
-	if len(oc) == 0:
+	if len(oc) < 1:
 		return ObjectContainer(header='No results', message='Your search didn\'t return any results.')
 	else:
 		return oc
