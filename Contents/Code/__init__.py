@@ -21,26 +21,28 @@ def Start():
 @handler('/video/4od', TITLE)
 def MainMenu():
 
-	oc = ObjectContainer()
+	oc = ObjectContainer(no_cache=True)
 
-	if not Platform.HasWebKit:
-		oc.header = 'Not supported'
-		oc.message = 'Server platform not supported'
-		if Client.Product == 'Web Client':
-			oc.add(Error('Server platform not supported'))
-		return oc
-	elif not Platform.HasFlash:
-		oc.header = 'Missing Flash plugin'
-		oc.message = 'Flash browser plugin is missing'
-		if Client.Product == 'Web Client':
-			oc.add(Error('Flash browser plugin is missing'))
-		return oc
+	if Prefs['email'] and Prefs['password']:
+		if not Platform.HasWebKit:
+			oc.header = 'Not supported'
+			oc.message = 'Server platform not supported'
+			if Client.Product == 'Web Client':
+				oc.add(Error('Server platform not supported'))
+			return oc
+		elif not Platform.HasFlash:
+			oc.header = 'Missing Flash plugin'
+			oc.message = 'Flash browser plugin is missing'
+			if Client.Product == 'Web Client':
+				oc.add(Error('Flash browser plugin is missing'))
+			return oc
 
-	oc.add(DirectoryObject(key=Callback(BrowseDate, title='Browse by Date'), title='Browse by Date'))
-	oc.add(DirectoryObject(key=Callback(BrowseCategory, title='Browse by Category'), title='Browse by Category'))
-	oc.add(DirectoryObject(key=Callback(BrowseAlphabetically, title='Browse Alphabetically'), title='Browse Alphabetically'))
-	oc.add(DirectoryObject(key=Callback(FeaturedCategory, title='Featured'), title='Featured'))
-	oc.add(InputDirectoryObject(key=Callback(Search), title='Search', prompt='Search for Programmes'))
+		oc.add(DirectoryObject(key=Callback(BrowseDate, title='Browse by Date'), title='Browse by Date'))
+		oc.add(DirectoryObject(key=Callback(BrowseCategory, title='Browse by Category'), title='Browse by Category'))
+		oc.add(DirectoryObject(key=Callback(BrowseAlphabetically, title='Browse Alphabetically'), title='Browse Alphabetically'))
+		oc.add(DirectoryObject(key=Callback(FeaturedCategory, title='Featured'), title='Featured'))
+		oc.add(InputDirectoryObject(key=Callback(Search), title='Search', prompt='Search for Programmes'))
+
 	oc.add(PrefsObject(title='Preferences'))
 
 	return oc
