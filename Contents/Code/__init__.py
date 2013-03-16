@@ -153,7 +153,7 @@ def BrowseAlphabetically(title):
 @route('/video/4od/programmes')
 def Programmes(title, tag=None, char=None):
 
-	oc = ObjectContainer(title2=title, view_group='InfoList')
+	oc = ObjectContainer(title2=title)
 
 	if tag != None:
 		content_url = PROGRAMMES_BY_CATEGORY % tag
@@ -245,7 +245,7 @@ def Series(title, url, thumb=None):
 @route('/video/4od/episodes')
 def Episodes(title, url, id, series_thumb=None):
 
-	oc = ObjectContainer(title2=title, view_group='InfoList')
+	oc = ObjectContainer(title2=title)
 	page = HTML.ElementFromURL(url)
 	show = page.xpath('//h1[@class = "brandTitle"]')[0].get('alt')
 	episodes = page.xpath('//li[@id="' + id + '"]/ol/li')
@@ -326,7 +326,7 @@ def FeaturedCategory(title):
 @route('/video/4od/featured', i=int)
 def Featured(title, i):
 
-	oc = ObjectContainer(title2=title, view_group='InfoList')
+	oc = ObjectContainer(title2=title)
 	programmes = HTML.ElementFromURL(PROGRAMMES_FEATURED).xpath('//li[@class="fourOnDemandCollection"][' + str(i) + ']//li')
 
 	for p in programmes:
