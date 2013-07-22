@@ -15,7 +15,7 @@ def Start():
 
 	ObjectContainer.title1 = TITLE
 	HTTP.CacheTime = CACHE_1HOUR
-	HTTP.Headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:17.0) Gecko/20100101 Firefox/17.0'
+	HTTP.Headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:22.0) Gecko/20100101 Firefox/22.0'
 
 ###################################################################################################
 @handler('/video/4od', TITLE)
@@ -23,20 +23,16 @@ def MainMenu():
 
 	oc = ObjectContainer(no_cache=True)
 
-	if Prefs['email'] and Prefs['password']:
-		if not Platform.HasWebKit:
-			oc.header = 'Not supported'
-			oc.message = 'Server platform not supported'
-			if Client.Product == 'Web Client':
-				oc.add(Error('Server platform not supported'))
-			return oc
-		elif not Platform.HasFlash:
-			oc.header = 'Missing Flash plugin'
-			oc.message = 'Flash browser plugin is missing'
-			if Client.Product == 'Web Client':
-				oc.add(Error('Flash browser plugin is missing'))
-			return oc
+	if not Platform.HasWebKit:
+		oc.header = 'Not supported'
+		oc.message = 'Server platform not supported'
+		return oc
+	elif not Platform.HasFlash:
+		oc.header = 'Missing Flash plugin'
+		oc.message = 'Flash browser plugin is missing'
+		return oc
 
+	if Prefs['email'] and Prefs['password']:
 		oc.add(DirectoryObject(key=Callback(BrowseDate, title='Browse by Date'), title='Browse by Date'))
 		oc.add(DirectoryObject(key=Callback(BrowseCategory, title='Browse by Category'), title='Browse by Category'))
 		oc.add(DirectoryObject(key=Callback(BrowseAlphabetically, title='Browse Alphabetically'), title='Browse Alphabetically'))
@@ -46,15 +42,6 @@ def MainMenu():
 	oc.add(PrefsObject(title='Preferences'))
 
 	return oc
-
-####################################################################################################
-@route('/video/4od/error')
-def Error(title):
-
-	return DirectoryObject(
-		key = Callback(Error, title=title),
-		title = title
-	)
 
 ####################################################################################################
 @route('/video/4od/browsebydate')
