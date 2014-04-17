@@ -3,20 +3,15 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleIdentifier</key>
-	<string>com.plexapp.plugins.4oD</string>
-	<key>PlexClientCapabilities</key>
-	<dict>
-		<key>protocols</key>
-		<array>
-			<string>webkit</string>
-		</array>
-	</dict>
-	<key>PlexClientPlatforms</key>
-	<string>MacOSX</string>
-	<key>PlexServerPlatforms</key>
-	<string>MacOSX-i386</string>
+	<string>com.plexapp.plugins.4oDmobile</string>
 	<key>PlexFrameworkVersion</key>
 	<string>2</string>
+	<key>PlexClientPlatforms</key>
+	<string>*</string>
+	<key>PlexFrameworkFlags</key>
+	<array>
+		<string>UseRealRTMP</string>
+	</array>
 	<key>PlexPluginRegions</key>
 	<array>
 		<string>GB</string>
